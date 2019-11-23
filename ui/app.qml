@@ -15,9 +15,37 @@ ApplicationWindow{
 	title: qsTr('Wpl Reader')
 	visible: true
 
+	signal wplParsed(string wpldata);
+	signal errorOccured(string error);
+	signal progressChanged(int progress)
+
 	// once the app window is created...
 	Component.onCompleted: {
 		console.log("app stated");
+		wpl.wplParsed.connect(wplParsed);
+		wpl.errorOccured.connect(errorOccured);
+		wpl.progressChanged.connect(progressChanged);
+	}
+
+	Connections {
+	    target: root
+	    onWplParsed: {
+			stackLayout.currentIndex = 0;
+			let data = JSON.parse(wpldata);
+			wplmodel.clear();
+			for (let i=0; i<data.length; i++){
+				wplmodel.append({i_name:data[i].name, i_ext:data[i].ext})
+			}
+		}
+
+		onErrorOccured:{
+			stackLayout.currentIndex = 1;
+			label.text = error;
+		}
+
+		onProgressChanged:{
+			extractionprogress.value = progress
+		}
 	}
 
 	// stack layout
@@ -61,7 +89,7 @@ ApplicationWindow{
 					}
 
 					onTextChanged: {
-						console.log(text);
+						wpl.read_wpl(text)
 					}
 
 					MouseArea {
@@ -78,7 +106,7 @@ ApplicationWindow{
 
 				StackLayout {
 					id: stackLayout
-					currentIndex: 0
+					currentIndex: 1
 					anchors.top: parent.top
 					anchors.topMargin: 96
 					anchors.bottom: parent.bottom
@@ -112,25 +140,7 @@ ApplicationWindow{
 										ext: i_ext
 									}
 									model: ListModel {
-										ListElement{
-											i_name: "This Song"
-											i_ext: "mp3"
-										}
-
-										ListElement{
-											i_name: "That Song"
-											i_ext: "wma"
-										}
-
-										ListElement{
-											i_name: "another Song"
-											i_ext: "wav"
-										}
-
-										ListElement{
-											i_name: "This other Song"
-											i_ext: "ogg"
-										}
+										id: wplmodel
 									}
 								}
 							}
@@ -163,7 +173,7 @@ ApplicationWindow{
 								width: 378
 								height: 17
 								color: "#dea9a9a9"
-								text: qsTr("Error message")
+								text: qsTr("Choose a wpl file")
 								font.capitalization: Font.Capitalize
 								font.family: "Montserrat"
 								verticalAlignment: Text.AlignVCenter
@@ -188,7 +198,25 @@ ApplicationWindow{
 					font.family: "Montserrat"
 					Material.foreground: "#ffffff"
 					Material.background: Material.accent
+					enabled: wpl.extractenabled
+
+					onClicked:{
+						exctractionFolder.open()
+					}
 				}
+
+    ProgressBar {
+        id: extractionprogress
+		y: 596
+		to: 100
+		anchors.right: parent.right
+		anchors.rightMargin: 0
+		anchors.left: parent.left
+		anchors.leftMargin: 0
+		anchors.bottom: parent.bottom
+  anchors.bottomMargin: 0
+		value: 0
+	}
 			}
 		}
 	}
@@ -199,32 +227,25 @@ ApplicationWindow{
 		title: "Select wpl file"
 		nameFilters: "Wpl Files (*.wpl)"
 	}
+
+	FolderDialog{
+		id: exctractionFolder
+		currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentLocation)
+		title: "Select Folder"
+
+		onAccepted: {
+			wpl.extract(folder);
+		}
+	}
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*##^## Designer {
-    D{i:6;anchors_height:100;anchors_width:100}D{i:4;anchors_x:25}D{i:11;anchors_height:160;anchors_width:110;anchors_x:0;anchors_y:0}
-D{i:10;anchors_height:200;anchors_width:200}D{i:7;anchors_height:496;anchors_width:450;anchors_x:25;anchors_y:96}
+    D{i:7;anchors_height:496;anchors_width:450;anchors_x:25;anchors_y:96}D{i:6;anchors_height:100;anchors_width:100}
+D{i:11;anchors_height:160;anchors_width:110;anchors_x:0;anchors_y:0}D{i:10;anchors_height:200;anchors_width:200}
+D{i:20;anchors_x:8}D{i:4;anchors_x:25}
 }
  ##^##*/
