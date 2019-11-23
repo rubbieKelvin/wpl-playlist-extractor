@@ -99,50 +99,37 @@ ApplicationWindow{
 
 							ScrollView {
 								id: scrollView
+								clip: true
 								anchors.fill: parent
 
 								ListView {
 									id: listView
 									anchors.fill: parent
-									delegate: Item {
-										x: 5
-										width: 80
-										height: 40
-										Row {
-											id: row1
-											spacing: 10
-											Rectangle {
-												width: 40
-												height: 40
-												color: colorCode
-											}
-
-											Text {
-												text: name
-												font.bold: true
-												anchors.verticalCenter: parent.verticalCenter
-											}
-										}
+									delegate: MusicItem{
+										id: item_root
+										width: parent.width
+										name: i_name
+										ext: i_ext
 									}
 									model: ListModel {
-										ListElement {
-											name: "Grey"
-											colorCode: "grey"
+										ListElement{
+											i_name: "This Song"
+											i_ext: "mp3"
 										}
 
-										ListElement {
-											name: "Red"
-											colorCode: "red"
+										ListElement{
+											i_name: "That Song"
+											i_ext: "wma"
 										}
 
-										ListElement {
-											name: "Blue"
-											colorCode: "blue"
+										ListElement{
+											i_name: "another Song"
+											i_ext: "wav"
 										}
 
-										ListElement {
-											name: "Green"
-											colorCode: "green"
+										ListElement{
+											i_name: "This other Song"
+											i_ext: "ogg"
 										}
 									}
 								}
@@ -213,6 +200,8 @@ ApplicationWindow{
 		nameFilters: "Wpl Files (*.wpl)"
 	}
 }
+
+
 
 
 
